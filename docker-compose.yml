@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16
+    container_name: entregas-db
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+    - "${DB_PORT_EXTERNAL}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - entregas-net
+
+  app:
+    build: .
+    container_name: entregas-app
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - entregas-net
+
+volumes:
+  postgres_data:
+
+networks:
+  entregas-net:
+    driver: bridge
